@@ -45,8 +45,13 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${assignedID}`); // Respond with 'Ok' (we will replace this)
 });
 
+app.post("/urls/:id/delete", (req, res) => {
+  delete urlDatabase[req.params.id];
+  res.redirect(`/urls/`); // Respond with 'Ok' (we will replace this)
+});
+
 app.get("/u/:id", (req, res) => {
-  const longURL = urlDatabase[req.params.id]
+  const longURL = urlDatabase[req.params.id];
   res.redirect(`${longURL}`);
 });
 
@@ -55,10 +60,11 @@ app.listen(PORT, () => {
 });
 
 function generateRandomString() {
-  const alphanum = "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789";
+  const alphanum =
+    "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789";
   let arr = [];
-  for (let i=0; i<6; i++) {
-    arr.push(alphanum[Math.floor(Math.random() * alphanum.length)])
+  for (let i = 0; i < 6; i++) {
+    arr.push(alphanum[Math.floor(Math.random() * alphanum.length)]);
   }
   return arr.join("");
 }
