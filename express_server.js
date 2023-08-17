@@ -50,6 +50,15 @@ app.post("/urls/:id/delete", (req, res) => {
   res.redirect(`/urls/`); // Respond with 'Ok' (we will replace this)
 });
 
+app.post("/urls/:id/edit", (req, res) => {
+  res.redirect(`/urls/${req.params.id}`); // Respond with 'Ok' (we will replace this)
+});
+
+app.post("/urls/:id/update", (req, res) => {
+  urlDatabase[req.params.id] = req.body.updatedURL;
+  res.redirect(`/urls/`); // Respond with 'Ok' (we will replace this)
+});
+
 app.get("/u/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id];
   res.redirect(`${longURL}`);
