@@ -73,7 +73,7 @@ app.get("/u/:id", (req, res) => {
 app.post("/login", (req, res) => {
   inputtedUsername = req.body.username;
   res.cookie('username', inputtedUsername);
-  res.send("Login successful");
+  res.redirect(`/urls/`);
 })
 
 // allows users to connect
