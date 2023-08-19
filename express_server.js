@@ -80,6 +80,12 @@ app.post("/login", (req, res) => {
   res.redirect(`/urls/`);
 });
 
+// navbar logout button
+app.post("/logout", (req, res) => {
+  res.clearCookie("username");
+  res.redirect(`/urls/`);
+});
+
 // allows users to connect
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
