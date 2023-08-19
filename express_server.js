@@ -38,6 +38,7 @@ app.get("/urls/:id", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+// add new url entry
 app.post("/urls", (req, res) => {
   // console.log(req.body); // Log the POST request body to the console
   let assignedID = generateRandomString();
@@ -45,29 +46,42 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${assignedID}`); // Respond with 'Ok' (we will replace this)
 });
 
+// delete entry
 app.post("/urls/:id/delete", (req, res) => {
   delete urlDatabase[req.params.id];
   res.redirect(`/urls/`); // Respond with 'Ok' (we will replace this)
 });
 
+// redirect to view/edit url page
 app.post("/urls/:id/edit", (req, res) => {
   res.redirect(`/urls/${req.params.id}`); // Respond with 'Ok' (we will replace this)
 });
 
+// update longURL of this entry
 app.post("/urls/:id/update", (req, res) => {
   urlDatabase[req.params.id] = req.body.updatedURL;
   res.redirect(`/urls/`); // Respond with 'Ok' (we will replace this)
 });
 
+// redirect to longurl
 app.get("/u/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id];
   res.redirect(`${longURL}`);
 });
 
+// navbar login form
+app.post("/login", (req, res) => {
+  inputtedUsername = req.body.username;
+  res.cookie('username', inputtedUsername);
+  res.send("Login successful");
+})
+
+// allows users to connect
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
 
+// for use in creating shortURL / entry ID
 function generateRandomString() {
   const alphanum =
     "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789";
