@@ -30,20 +30,20 @@ app.get("/hello", (req, res) => {
 
 // list of all urls
 app.get("/urls", (req, res) => {
-  const templateVars = { username: req.cookies["username"], urls: urlDatabase };
+  const templateVars = { user: users[req.cookies["user_id"]], urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
 
 // create new url page
 app.get("/urls/new", (req, res) => {
-  const templateVars = { username: req.cookies["username"] };
+  const templateVars = { user: users[req.cookies["user_id"]] };
   res.render("urls_new", templateVars);
 });
 
 // specific url info page
 app.get("/urls/:id", (req, res) => {
   const templateVars = {
-    username: req.cookies["username"],
+    user: users[req.cookies["user_id"]],
     id: req.params.id,
     longURL: `${urlDatabase[req.params.id]}` /* What goes here? */,
   };
@@ -52,7 +52,7 @@ app.get("/urls/:id", (req, res) => {
 
 // new account page
 app.get("/register", (req, res) => {
-  const templateVars = { username: req.cookies["username"] };
+  const templateVars = { user: users[req.cookies["user_id"]] };
   res.render("register", templateVars);
 });
 
@@ -100,6 +100,7 @@ app.post("/logout", (req, res) => {
   res.redirect(`/urls/`);
 });
 
+// register new user form
 app.post("/register", (req, res) => {
   const assignedID = generateRandomString();
   users[assignedID] = {
