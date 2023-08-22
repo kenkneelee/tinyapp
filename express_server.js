@@ -6,6 +6,8 @@ app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+const users = {};
+
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com",
@@ -34,7 +36,7 @@ app.get("/urls", (req, res) => {
 
 // create new url page
 app.get("/urls/new", (req, res) => {
-  const templateVars = {username: req.cookies["username"]}
+  const templateVars = { username: req.cookies["username"] };
   res.render("urls_new", templateVars);
 });
 
@@ -50,7 +52,7 @@ app.get("/urls/:id", (req, res) => {
 
 // new account page
 app.get("/register", (req, res) => {
-  const templateVars = {username: req.cookies["username"]}
+  const templateVars = { username: req.cookies["username"] };
   res.render("register", templateVars);
 });
 
@@ -95,6 +97,18 @@ app.post("/login", (req, res) => {
 // navbar logout button
 app.post("/logout", (req, res) => {
   res.clearCookie("username");
+  res.redirect(`/urls/`);
+});
+
+app.post("/register", (req, res) => {
+  const assignedID = generateRandomString();
+  users[assignedID] = {
+    id: assignedID,
+    email: req.body.email,
+    password: req.body.password,
+  };
+  res.cookie("user_id", assignedID);
+  // console.log(users);
   res.redirect(`/urls/`);
 });
 
