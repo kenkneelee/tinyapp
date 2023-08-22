@@ -11,28 +11,34 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com",
 };
 
+// learning to use routes
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
 
+// test "res.json"
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
+// test "res.send"
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
+// list of all urls
 app.get("/urls", (req, res) => {
   const templateVars = { username: req.cookies["username"], urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
 
+// create new url page
 app.get("/urls/new", (req, res) => {
   const templateVars = {username: req.cookies["username"]}
   res.render("urls_new", templateVars);
 });
 
+// specific url info page
 app.get("/urls/:id", (req, res) => {
   const templateVars = {
     username: req.cookies["username"],
@@ -40,6 +46,12 @@ app.get("/urls/:id", (req, res) => {
     longURL: `${urlDatabase[req.params.id]}` /* What goes here? */,
   };
   res.render("urls_show", templateVars);
+});
+
+// new account page
+app.get("/register", (req, res) => {
+  const templateVars = {username: req.cookies["username"]}
+  res.render("register", templateVars);
 });
 
 // add new url entry
