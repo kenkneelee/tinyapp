@@ -171,7 +171,7 @@ app.post("/register", (req, res) => {
   }
   // - user exists already
   if (getUserByEmail(req.body.email, users)) {
-    return res.sendStatus(404);
+    return res.sendStatus(400);
   }
   const assignedID = generateRandomString();
   const hashedPassword = bcrypt.hashSync(req.body.password, 10);
