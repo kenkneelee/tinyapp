@@ -1,8 +1,11 @@
+// import and setup server
 const express = require("express");
 const app = express();
 const PORT = 8080;
+// import cookie and password security packages
 const cookieSession = require("cookie-session");
 const bcrypt = require("bcryptjs");
+// import helper functions
 const {
   generateRandomString,
   getUserByEmail,
@@ -10,6 +13,7 @@ const {
   urlsForUser,
 } = require(`./helpers`);
 
+// server middleware setup
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 app.use(
@@ -35,12 +39,12 @@ const urlDatabase = {
   b2xVn2: { longURL: "http://www.lighthouselabs.ca", userID: "aJ48lW" },
 };
 
-// learning to use routes
+// base directory redirects
 app.get("/", (req, res) => {
   if (isloggedIn(req, users)) {
-    res.redirect(`/urls`);
+    res.redirect(`/urls/`);
   } else {
-    res.redirect(`/login`);
+    res.redirect(`/login/`);
   }
 });
 
@@ -62,7 +66,7 @@ app.get("/urls", (req, res) => {
 // create new url page
 app.get("/urls/new", (req, res) => {
   if (!isloggedIn(req, users)) {
-    res.redirect("/login");
+    res.redirect("/login/");
   } else {
     const templateVars = { user: users[req.session.user_id] };
     res.render("urls_new", templateVars);
