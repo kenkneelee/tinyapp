@@ -60,6 +60,12 @@ app.get("/register", (req, res) => {
   res.render("register", templateVars);
 });
 
+// login page
+app.get("/login", (req, res) => {
+  const templateVars = { user: users[req.cookies["user_id"]] };
+  res.render("login", templateVars);
+});
+
 // add new url entry
 app.post("/urls", (req, res) => {
   // console.log(req.body); // Log the POST request body to the console
