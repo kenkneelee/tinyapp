@@ -30,7 +30,10 @@ app.get("/hello", (req, res) => {
 
 // list of all urls
 app.get("/urls", (req, res) => {
-  const templateVars = { user: users[req.cookies["user_id"]], urls: urlDatabase };
+  const templateVars = {
+    user: users[req.cookies["user_id"]],
+    urls: urlDatabase,
+  };
   res.render("urls_index", templateVars);
 });
 
@@ -103,6 +106,14 @@ app.post("/logout", (req, res) => {
 
 // register new user form
 app.post("/register", (req, res) => {
+  // empty email or password fields
+  if (req.body.email.length === 0 || req.body.password.length === 0) {
+    return res.sendStatus(400);
+  }
+  // if user exists already
+  if (getUserByEmail(req.body.email)) {
+    return res.sendStatus(404);
+  }
   const assignedID = generateRandomString();
   users[assignedID] = {
     id: assignedID,
@@ -119,8 +130,9 @@ app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
 
-// for use in creating shortURL / entry ID
-function generateRandomString() {
+// Utility functions
+// for use in creating shortURL / user ID
+const generateRandomString = function () {
   const alphanum =
     "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789";
   let arr = [];
@@ -128,4 +140,13 @@ function generateRandomString() {
     arr.push(alphanum[Math.floor(Math.random() * alphanum.length)]);
   }
   return arr.join("");
-}
+};
+// check if user already exists
+const getUserByEmail = function (inputtedEmail) {
+  for (const user in users) {
+    if (users[user].email === inputtedEmail) {
+      return users[user];
+    }
+  }
+  return null;
+};
