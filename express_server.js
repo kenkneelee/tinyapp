@@ -198,7 +198,7 @@ app.post("/register", (req, res) => {
 // navbar logout button
 app.post("/logout", (req, res) => {
   // Clear the user's session
-  req.session = null; 
+  req.session = null;
   res.redirect(`/login/`);
 });
 
