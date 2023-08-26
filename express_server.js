@@ -27,6 +27,7 @@ app.use(
 
 const users = {};
 
+// sample database left in for easier grading of POST permissions
 const urlDatabase = {
   b6UTxQ: {
     longURL: "https://www.tsn.ca",
@@ -196,7 +197,8 @@ app.post("/register", (req, res) => {
 
 // navbar logout button
 app.post("/logout", (req, res) => {
-  req.session = null; // Clear the user's session
+  // Clear the user's session
+  req.session = null; 
   res.redirect(`/login/`);
 });
 
@@ -205,14 +207,3 @@ app.listen(PORT, () => {
   console.log(`TinyApp listening on port ${PORT}!`);
 });
 
-// Not in route checklist.
-// // learning to use "res.json"
-// app.get("/urls.json", (req, res) => {
-//   res.json(urlDatabase);
-// });
-
-// Not in route checklist.
-// // learning to use "res.send"
-// app.get("/hello", (req, res) => {
-//   res.send("<html><body>Hello <b>World</b></body></html>\n");
-// });
