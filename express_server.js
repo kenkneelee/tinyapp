@@ -54,7 +54,7 @@ app.get("/urls/:id", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
-// redirect to longurl
+// redirect to associated longurl
 app.get("/u/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id];
   res.redirect(`${longURL}`);
@@ -91,7 +91,7 @@ app.get("/register", (req, res) => {
   res.render("register", templateVars);
 });
 
-// login form
+// login form submission
 app.post("/login", (req, res) => {
   const foundUser = getUserByEmail(req.body.email);
   if (foundUser && req.body.password === foundUser.password) {
@@ -100,14 +100,14 @@ app.post("/login", (req, res) => {
   } else return res.sendStatus(403);
 });
 
-// register new user form
+// register new user form submission
 app.post("/register", (req, res) => {
-  // errors: send error status and escape function early
-  // empty email or password fields
+  // errors: send error status and escape function early if:
+  // - empty email or password fields
   if (req.body.email.length === 0 || req.body.password.length === 0) {
     return res.sendStatus(400);
   }
-  // if user exists already
+  // - user exists already
   if (getUserByEmail(req.body.email)) {
     return res.sendStatus(404);
   }
@@ -117,6 +117,7 @@ app.post("/register", (req, res) => {
     email: req.body.email,
     password: req.body.password,
   };
+  // login following succesful user creation
   res.cookie("user_id", assignedID);
   res.redirect(`/urls/`);
 });
