@@ -29,8 +29,12 @@ app.get("/urls", (req, res) => {
 
 // create new url page
 app.get("/urls/new", (req, res) => {
-  const templateVars = { user: users[req.cookies["user_id"]] };
-  res.render("urls_new", templateVars);
+  if (!isloggedIn(req)) {
+    res.redirect("/login");
+  } else {
+    const templateVars = { user: users[req.cookies["user_id"]] };
+    res.render("urls_new", templateVars);
+  }
 });
 
 // specific url info page
@@ -51,9 +55,13 @@ app.get("/u/:id", (req, res) => {
 
 // add new url entry
 app.post("/urls", (req, res) => {
-  let assignedID = generateRandomString();
-  urlDatabase[assignedID] = req.body.longURL;
-  res.redirect(`/urls/${assignedID}`);
+  if (!isloggedIn(req)) {
+    res.send("Cannot shorten URL: Not logged in");
+  } else {
+    let assignedID = generateRandomString();
+    urlDatabase[assignedID] = req.body.longURL;
+    res.redirect(`/urls/${assignedID}`);
+  }
 });
 
 // update longURL of this entry
@@ -167,5 +175,5 @@ const getUserByEmail = function (inputtedEmail) {
 
 // check if user is logged in
 const isloggedIn = function (req) {
-  return (req.cookies["user_id"] && users[req.cookies["user_id"]]) ? true : false;
+  return req.cookies["user_id"] && users[req.cookies["user_id"]] ? true : false;
 };
