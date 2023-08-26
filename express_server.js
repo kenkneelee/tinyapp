@@ -18,12 +18,13 @@ app.get("/", (req, res) => {
   res.send("Hello!");
 });
 
-// // test "res.json"
+// Not in route checklist. Remove before submission?
+// // learning to use "res.json"
 // app.get("/urls.json", (req, res) => {
 //   res.json(urlDatabase);
 // });
 
-// // test "res.send"
+// // learning to use "res.send"
 // app.get("/hello", (req, res) => {
 //   res.send("<html><body>Hello <b>World</b></body></html>\n");
 // });
@@ -63,24 +64,19 @@ app.get("/u/:id", (req, res) => {
 app.post("/urls", (req, res) => {
   let assignedID = generateRandomString();
   urlDatabase[assignedID] = req.body.longURL;
-  res.redirect(`/urls/${assignedID}`); 
-});
-
-// redirect to view/edit url page --> change from POST to get / HTML link?
-app.post("/urls/:id/edit", (req, res) => {
-  res.redirect(`/urls/${req.params.id}`); 
+  res.redirect(`/urls/${assignedID}`);
 });
 
 // update longURL of this entry
-app.post("/urls/:id/update", (req, res) => {
+app.post("/urls/:id/", (req, res) => {
   urlDatabase[req.params.id] = req.body.updatedURL;
-  res.redirect(`/urls/`); 
+  res.redirect(`/urls/`);
 });
 
 // delete entry
 app.post("/urls/:id/delete", (req, res) => {
   delete urlDatabase[req.params.id];
-  res.redirect(`/urls/`); 
+  res.redirect(`/urls/`);
 });
 
 // login page
@@ -98,16 +94,15 @@ app.get("/register", (req, res) => {
 // login form
 app.post("/login", (req, res) => {
   const foundUser = getUserByEmail(req.body.email);
-  if (!foundUser || req.body.password !== foundUser.password) {
-    return res.sendStatus(403);
-  } else if (req.body.password === foundUser.password) {
+  if (foundUser && req.body.password === foundUser.password) {
     res.cookie("user_id", foundUser.id);
-  }
-  res.redirect(`/urls/`);
+    res.redirect(`/urls/`);
+  } else return res.sendStatus(403);
 });
 
 // register new user form
 app.post("/register", (req, res) => {
+  // errors: send error status and escape function early
   // empty email or password fields
   if (req.body.email.length === 0 || req.body.password.length === 0) {
     return res.sendStatus(400);
