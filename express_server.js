@@ -143,7 +143,7 @@ app.get("/register", (req, res) => {
 // login form submission
 app.post("/login", (req, res) => {
   const foundUser = getUserByEmail(req.body.email);
-  if (foundUser && req.body.password === foundUser.password) {
+  if (foundUser && bcrypt.compareSync(req.body.password, foundUser.password)) {
     res.cookie("user_id", foundUser.id);
     res.redirect(`/urls/`);
   } else return res.sendStatus(403);
@@ -161,10 +161,11 @@ app.post("/register", (req, res) => {
     return res.sendStatus(404);
   }
   const assignedID = generateRandomString();
+  const hashedPassword = bcrypt.hashSync(req.body.password, 10);
   users[assignedID] = {
     id: assignedID,
     email: req.body.email,
-    password: req.body.password,
+    password: hashedPassword,
   };
   // login following succesful user creation
   res.cookie("user_id", assignedID);
