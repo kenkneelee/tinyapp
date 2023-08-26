@@ -102,8 +102,7 @@ app.post("/login", (req, res) => {
   const foundUser = getUserByEmail(req.body.email);
   if (!foundUser || req.body.password !== foundUser.password) {
     return res.sendStatus(403);
-  }
-  else if (req.body.password === foundUser.password) {
+  } else if (req.body.password === foundUser.password) {
     res.cookie("user_id", foundUser.id);
   }
   res.redirect(`/urls/`);
@@ -112,7 +111,7 @@ app.post("/login", (req, res) => {
 // navbar logout button
 app.post("/logout", (req, res) => {
   res.clearCookie("user_id");
-  res.redirect(`/urls/`);
+  res.redirect(`/login/`);
 });
 
 // register new user form
