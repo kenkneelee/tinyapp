@@ -19,10 +19,6 @@ const urlDatabase = {
   },
   b2xVn2: { longURL: "http://www.lighthouselabs.ca", userID: "aJ48lW" },
 };
-// const urlDatabase = {
-//   "b2xVn2": "http://www.lighthouselabs.ca",
-//   "9sm5xK": "http://www.google.com",
-// };
 
 // learning to use routes
 app.get("/", (req, res) => {
@@ -31,11 +27,17 @@ app.get("/", (req, res) => {
 
 // list of all urls
 app.get("/urls", (req, res) => {
-  const templateVars = {
-    user: users[req.cookies["user_id"]],
-    urls: urlDatabase,
-  };
-  res.render("urls_index", templateVars);
+  if (!isloggedIn(req)) {
+    res.send(
+      "Please <a href='/login/'>login</a> or <a href='/register/'>register.</a>"
+    );
+  } else {
+    const templateVars = {
+      user: users[req.cookies["user_id"]],
+      urls: urlsForUser(req.cookies["user_id"]),
+    };
+    res.render("urls_index", templateVars);
+  }
 });
 
 // create new url page
@@ -74,7 +76,10 @@ app.post("/urls", (req, res) => {
     res.send("Cannot shorten URL: Not logged in");
   } else {
     let assignedID = generateRandomString();
-    urlDatabase[assignedID] = {longURL: req.body.longURL, userID: (req.cookies["user-id"])};
+    urlDatabase[assignedID] = {
+      longURL: req.body.longURL,
+      userID: req.cookies["user_id"],
+    };
     res.redirect(`/urls/${assignedID}`);
   }
 });
@@ -191,4 +196,15 @@ const getUserByEmail = function (inputtedEmail) {
 // check if user is logged in
 const isloggedIn = function (req) {
   return req.cookies["user_id"] && users[req.cookies["user_id"]] ? true : false;
+};
+
+// retrieve input user's owned links
+const urlsForUser = function (id) {
+  const ownedUrlDatabase = {};
+  for (const entry in urlDatabase) {
+    if (urlDatabase[entry].userID === id) {
+      ownedUrlDatabase[entry] = urlDatabase[entry];
+    }
+  }
+  return ownedUrlDatabase;
 };
