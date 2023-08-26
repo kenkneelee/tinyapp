@@ -57,9 +57,9 @@ app.get("/urls/:id", (req, res) => {
       "Not logged in! Please <a href='/login/'>login</a> or <a href='/register/'>register.</a>"
     );
   } else if (!urlDatabase[req.params.id]) {
-    res.send("URL does not exist.");
+    res.status(404).send("URL does not exist.");
   } else if (urlDatabase[req.params.id].userID !== req.cookies["user_id"]) {
-    res.send("This URL does not belong to you.");
+    res.status(403).send("This URL does not belong to you.");
   } else {
     const templateVars = {
       user: users[req.cookies["user_id"]],
@@ -96,14 +96,26 @@ app.post("/urls", (req, res) => {
 
 // update longURL of this entry
 app.post("/urls/:id/", (req, res) => {
-  urlDatabase[req.params.id].longURL = req.body.updatedURL;
-  res.redirect(`/urls/`);
+  if (!urlDatabase[req.params.id]) {
+    res.status(404).send("Link not found.");
+  } else if (urlDatabase[req.params.id].userID !== req.cookies["user_id"]) {
+    res.status(403).send("You do not have permissions to edit this link.");
+  } else {
+    urlDatabase[req.params.id].longURL = req.body.updatedURL;
+    res.redirect(`/urls/`);
+  }
 });
 
 // delete entry
 app.post("/urls/:id/delete", (req, res) => {
-  delete urlDatabase[req.params.id];
-  res.redirect(`/urls/`);
+  if (!urlDatabase[req.params.id]) {
+    res.status(404).send("Link not found.");
+  } else if (urlDatabase[req.params.id].userID !== req.cookies["user_id"]) {
+    res.status(403).send("You do not have permissions to delete this link.");
+  } else {
+    delete urlDatabase[req.params.id];
+    res.redirect(`/urls/`);
+  }
 });
 
 // login page
