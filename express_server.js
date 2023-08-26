@@ -9,9 +9,20 @@ app.use(cookieParser());
 const users = {};
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com",
+  b6UTxQ: {
+    longURL: "https://www.tsn.ca",
+    userID: "aJ48lW",
+  },
+  i3BoGr: {
+    longURL: "https://www.google.ca",
+    userID: "aJ48lW",
+  },
+  b2xVn2: { longURL: "http://www.lighthouselabs.ca", userID: "aJ48lW" },
 };
+// const urlDatabase = {
+//   "b2xVn2": "http://www.lighthouselabs.ca",
+//   "9sm5xK": "http://www.google.com",
+// };
 
 // learning to use routes
 app.get("/", (req, res) => {
@@ -42,7 +53,7 @@ app.get("/urls/:id", (req, res) => {
   const templateVars = {
     user: users[req.cookies["user_id"]],
     id: req.params.id,
-    longURL: `${urlDatabase[req.params.id]}`,
+    longURL: `${urlDatabase[req.params.id].longURL}`,
   };
   res.render("urls_show", templateVars);
 });
@@ -52,8 +63,8 @@ app.get("/u/:id", (req, res) => {
   if (!urlDatabase[req.params.id]) {
     res.status(404).send("Link does not exist");
   } else {
-    const longURL = urlDatabase[req.params.id];
-    res.redirect(`${longURL}`);
+    const foundLongURL = urlDatabase[req.params.id].longURL;
+    res.redirect(`${foundLongURL}`);
   }
 });
 
@@ -63,14 +74,14 @@ app.post("/urls", (req, res) => {
     res.send("Cannot shorten URL: Not logged in");
   } else {
     let assignedID = generateRandomString();
-    urlDatabase[assignedID] = req.body.longURL;
+    urlDatabase[assignedID] = {longURL: req.body.longURL, userID: (req.cookies["user-id"])};
     res.redirect(`/urls/${assignedID}`);
   }
 });
 
 // update longURL of this entry
 app.post("/urls/:id/", (req, res) => {
-  urlDatabase[req.params.id] = req.body.updatedURL;
+  urlDatabase[req.params.id].longURL = req.body.updatedURL;
   res.redirect(`/urls/`);
 });
 
