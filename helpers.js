@@ -23,6 +23,7 @@ const getUserByEmail = function(inputtedEmail, userDatabase) {
 
 // check if user is logged in
 const isloggedIn = function(req, userDatabase) {
+  // this function looks weird but does not return true/false unless explicitly stated
   return req.session.user_id && userDatabase[req.session.user_id]
     ? true
     : false;
