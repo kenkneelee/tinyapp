@@ -43,6 +43,7 @@ app.get("/urls/new", (req, res) => {
 // specific url info page
 app.get("/urls/:id", (req, res) => {
   const templateVars = {
+    // lookup userid stored in cookies, in users database
     user: users[req.cookies["user_id"]],
     id: req.params.id,
     longURL: `${urlDatabase[req.params.id]}` /* What goes here? */,
@@ -96,7 +97,7 @@ app.post("/login", (req, res) => {
 
 // navbar logout button
 app.post("/logout", (req, res) => {
-  res.clearCookie("username");
+  res.clearCookie("user_id");
   res.redirect(`/urls/`);
 });
 
