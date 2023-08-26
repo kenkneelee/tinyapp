@@ -176,11 +176,11 @@ app.post("/register", (req, res) => {
   // errors: send error status and escape function early if:
   // - empty email or password fields
   if (req.body.email.length === 0 || req.body.password.length === 0) {
-    return res.sendStatus(400);
+    return res.status(400).send("Invalid email/password.");
   }
   // - user exists already
   if (getUserByEmail(req.body.email, users)) {
-    return res.sendStatus(400);
+    return res.status(400).send("A user with that email already exists!");
   }
   const assignedID = generateRandomString();
   const hashedPassword = bcrypt.hashSync(req.body.password, 10);
