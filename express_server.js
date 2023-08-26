@@ -70,14 +70,22 @@ app.post("/urls/:id/delete", (req, res) => {
 
 // login page
 app.get("/login", (req, res) => {
-  const templateVars = { user: users[req.cookies["user_id"]] };
-  res.render("login", templateVars);
+  if (isloggedIn(req)) {
+    res.redirect(`/urls/`);
+  } else {
+    const templateVars = { user: users[req.cookies["user_id"]] };
+    res.render("login", templateVars);
+  }
 });
 
 // new account page
 app.get("/register", (req, res) => {
-  const templateVars = { user: users[req.cookies["user_id"]] };
-  res.render("register", templateVars);
+  if (isloggedIn(req)) {
+    res.redirect(`/urls/`);
+  } else {
+    const templateVars = { user: users[req.cookies["user_id"]] };
+    res.render("register", templateVars);
+  }
 });
 
 // login form submission
@@ -159,5 +167,5 @@ const getUserByEmail = function (inputtedEmail) {
 
 // check if user is logged in
 const isloggedIn = function (req) {
-  return req.cookies[user_id] ? true : false;
-}
+  return (req.cookies["user_id"] && users[req.cookies["user_id"]]) ? true : false;
+};
