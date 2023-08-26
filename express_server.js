@@ -1,12 +1,19 @@
 const express = require("express");
 const app = express();
 const PORT = 8080;
-const cookieParser = require("cookie-parser");
+const cookieSession = require("cookie-session");
 const bcrypt = require("bcryptjs");
 
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
+app.use(
+  cookieSession({
+    name: "session",
+    keys: ["very-secret", "totally-not-exposed-keys"],
+    // Cookie Options
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+  })
+);
 
 const users = {};
 
@@ -35,8 +42,8 @@ app.get("/urls", (req, res) => {
     );
   } else {
     const templateVars = {
-      user: users[req.cookies["user_id"]],
-      urls: urlsForUser(req.cookies["user_id"]),
+      user: users[req.session.user_id],
+      urls: urlsForUser(req.session.user_id),
     };
     res.render("urls_index", templateVars);
   }
@@ -47,7 +54,7 @@ app.get("/urls/new", (req, res) => {
   if (!isloggedIn(req)) {
     res.redirect("/login");
   } else {
-    const templateVars = { user: users[req.cookies["user_id"]] };
+    const templateVars = { user: users[req.session.user_id] };
     res.render("urls_new", templateVars);
   }
 });
@@ -60,11 +67,11 @@ app.get("/urls/:id", (req, res) => {
     );
   } else if (!urlDatabase[req.params.id]) {
     res.status(404).send("URL does not exist.");
-  } else if (urlDatabase[req.params.id].userID !== req.cookies["user_id"]) {
+  } else if (urlDatabase[req.params.id].userID !== req.session.user_id) {
     res.status(403).send("This URL does not belong to you.");
   } else {
     const templateVars = {
-      user: users[req.cookies["user_id"]],
+      user: users[req.session.user_id],
       id: req.params.id,
       longURL: `${urlDatabase[req.params.id].longURL}`,
     };
@@ -90,7 +97,7 @@ app.post("/urls", (req, res) => {
     let assignedID = generateRandomString();
     urlDatabase[assignedID] = {
       longURL: req.body.longURL,
-      userID: req.cookies["user_id"],
+      userID: req.session.user_id,
     };
     res.redirect(`/urls/${assignedID}`);
   }
@@ -100,7 +107,7 @@ app.post("/urls", (req, res) => {
 app.post("/urls/:id/", (req, res) => {
   if (!urlDatabase[req.params.id]) {
     res.status(404).send("Link not found.");
-  } else if (urlDatabase[req.params.id].userID !== req.cookies["user_id"]) {
+  } else if (urlDatabase[req.params.id].userID !== req.session.user_id) {
     res.status(403).send("You do not have permissions to edit this link.");
   } else {
     urlDatabase[req.params.id].longURL = req.body.updatedURL;
@@ -112,7 +119,7 @@ app.post("/urls/:id/", (req, res) => {
 app.post("/urls/:id/delete", (req, res) => {
   if (!urlDatabase[req.params.id]) {
     res.status(404).send("Link not found.");
-  } else if (urlDatabase[req.params.id].userID !== req.cookies["user_id"]) {
+  } else if (urlDatabase[req.params.id].userID !== req.session.user_id) {
     res.status(403).send("You do not have permissions to delete this link.");
   } else {
     delete urlDatabase[req.params.id];
@@ -125,7 +132,7 @@ app.get("/login", (req, res) => {
   if (isloggedIn(req)) {
     res.redirect(`/urls/`);
   } else {
-    const templateVars = { user: users[req.cookies["user_id"]] };
+    const templateVars = { user: users[req.session.user_id] };
     res.render("login", templateVars);
   }
 });
@@ -135,7 +142,7 @@ app.get("/register", (req, res) => {
   if (isloggedIn(req)) {
     res.redirect(`/urls/`);
   } else {
-    const templateVars = { user: users[req.cookies["user_id"]] };
+    const templateVars = { user: users[req.session.user_id] };
     res.render("register", templateVars);
   }
 });
@@ -144,7 +151,7 @@ app.get("/register", (req, res) => {
 app.post("/login", (req, res) => {
   const foundUser = getUserByEmail(req.body.email);
   if (foundUser && bcrypt.compareSync(req.body.password, foundUser.password)) {
-    res.cookie("user_id", foundUser.id);
+    req.session.user_id = foundUser.id;
     res.redirect(`/urls/`);
   } else return res.sendStatus(403);
 });
@@ -168,13 +175,13 @@ app.post("/register", (req, res) => {
     password: hashedPassword,
   };
   // login following succesful user creation
-  res.cookie("user_id", assignedID);
+  req.session.user_id = assignedID;
   res.redirect(`/urls/`);
 });
 
 // navbar logout button
 app.post("/logout", (req, res) => {
-  res.clearCookie("user_id");
+  req.session = null; // Clear the user's session
   res.redirect(`/login/`);
 });
 
@@ -220,7 +227,7 @@ const getUserByEmail = function (inputtedEmail) {
 
 // check if user is logged in
 const isloggedIn = function (req) {
-  return req.cookies["user_id"] && users[req.cookies["user_id"]] ? true : false;
+  return req.session.user_id && users[req.session.user_id];
 };
 
 // retrieve input user's owned links
