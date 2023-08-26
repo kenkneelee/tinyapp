@@ -37,7 +37,11 @@ const urlDatabase = {
 
 // learning to use routes
 app.get("/", (req, res) => {
-  res.send("Hello!");
+  if (isloggedIn(req, users)) {
+    res.redirect(`/urls`);
+  } else {
+    res.redirect(`/login`);
+  }
 });
 
 // list of all urls
