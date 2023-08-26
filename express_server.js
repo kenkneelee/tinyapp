@@ -97,10 +97,15 @@ app.get("/u/:id", (req, res) => {
   res.redirect(`${longURL}`);
 });
 
-// navbar login form
+// login form
 app.post("/login", (req, res) => {
-  inputtedUsername = req.body.username;
-  res.cookie("username", inputtedUsername);
+  const foundUser = getUserByEmail(req.body.email);
+  if (!foundUser || req.body.password !== foundUser.password) {
+    return res.sendStatus(403);
+  }
+  else if (req.body.password === foundUser.password) {
+    res.cookie("user_id", foundUser.id);
+  }
   res.redirect(`/urls/`);
 });
 
