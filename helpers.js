@@ -1,7 +1,7 @@
 /////// Utility functions ///////
 
 // for use in creating shortURL / user ID
-const generateRandomString = function () {
+const generateRandomString = function() {
   const alphanum =
     "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789";
   let arr = [];
@@ -12,7 +12,7 @@ const generateRandomString = function () {
 };
 
 // check if user already exists
-const getUserByEmail = function (inputtedEmail, userDatabase) {
+const getUserByEmail = function(inputtedEmail, userDatabase) {
   for (const user in userDatabase) {
     if (userDatabase[user].email === inputtedEmail) {
       return userDatabase[user];
@@ -22,14 +22,14 @@ const getUserByEmail = function (inputtedEmail, userDatabase) {
 };
 
 // check if user is logged in
-const isloggedIn = function (req, userDatabase) {
+const isloggedIn = function(req, userDatabase) {
   return req.session.user_id && userDatabase[req.session.user_id]
     ? true
     : false;
 };
 
 // retrieve input user's owned links
-const urlsForUser = function (id, urlDatabase) {
+const urlsForUser = function(id, urlDatabase) {
   const ownedUrlDatabase = {};
   for (const entry in urlDatabase) {
     if (urlDatabase[entry].userID === id) {
