@@ -3,6 +3,12 @@ const app = express();
 const PORT = 8080;
 const cookieSession = require("cookie-session");
 const bcrypt = require("bcryptjs");
+const {
+  generateRandomString,
+  getUserByEmail,
+  isloggedIn,
+  urlsForUser,
+} = require(`./helpers`);
 
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
@@ -36,14 +42,14 @@ app.get("/", (req, res) => {
 
 // list of all urls
 app.get("/urls", (req, res) => {
-  if (!isloggedIn(req)) {
+  if (!isloggedIn(req, users)) {
     res.send(
       "Welcome to TinyApp. Please <a href='/login/'>login</a> or <a href='/register/'>register.</a>"
     );
   } else {
     const templateVars = {
       user: users[req.session.user_id],
-      urls: urlsForUser(req.session.user_id),
+      urls: urlsForUser(req.session.user_id, urlDatabase),
     };
     res.render("urls_index", templateVars);
   }
@@ -51,7 +57,7 @@ app.get("/urls", (req, res) => {
 
 // create new url page
 app.get("/urls/new", (req, res) => {
-  if (!isloggedIn(req)) {
+  if (!isloggedIn(req, users)) {
     res.redirect("/login");
   } else {
     const templateVars = { user: users[req.session.user_id] };
@@ -61,7 +67,7 @@ app.get("/urls/new", (req, res) => {
 
 // specific url info page
 app.get("/urls/:id", (req, res) => {
-  if (!isloggedIn(req)) {
+  if (!isloggedIn(req, users)) {
     res.send(
       "Not logged in! Please <a href='/login/'>login</a> or <a href='/register/'>register.</a>"
     );
@@ -91,7 +97,7 @@ app.get("/u/:id", (req, res) => {
 
 // add new url entry
 app.post("/urls", (req, res) => {
-  if (!isloggedIn(req)) {
+  if (!isloggedIn(req, users)) {
     res.send("Cannot shorten URL: Not logged in");
   } else {
     let assignedID = generateRandomString();
@@ -129,7 +135,7 @@ app.post("/urls/:id/delete", (req, res) => {
 
 // login page
 app.get("/login", (req, res) => {
-  if (isloggedIn(req)) {
+  if (isloggedIn(req, users)) {
     res.redirect(`/urls/`);
   } else {
     const templateVars = { user: users[req.session.user_id] };
@@ -139,7 +145,7 @@ app.get("/login", (req, res) => {
 
 // new account page
 app.get("/register", (req, res) => {
-  if (isloggedIn(req)) {
+  if (isloggedIn(req, users)) {
     res.redirect(`/urls/`);
   } else {
     const templateVars = { user: users[req.session.user_id] };
@@ -149,7 +155,7 @@ app.get("/register", (req, res) => {
 
 // login form submission
 app.post("/login", (req, res) => {
-  const foundUser = getUserByEmail(req.body.email);
+  const foundUser = getUserByEmail(req.body.email, users);
   if (foundUser && bcrypt.compareSync(req.body.password, foundUser.password)) {
     req.session.user_id = foundUser.id;
     res.redirect(`/urls/`);
@@ -164,7 +170,7 @@ app.post("/register", (req, res) => {
     return res.sendStatus(400);
   }
   // - user exists already
-  if (getUserByEmail(req.body.email)) {
+  if (getUserByEmail(req.body.email, users)) {
     return res.sendStatus(404);
   }
   const assignedID = generateRandomString();
@@ -201,42 +207,3 @@ app.listen(PORT, () => {
 // app.get("/hello", (req, res) => {
 //   res.send("<html><body>Hello <b>World</b></body></html>\n");
 // });
-
-/////// Utility functions ///////
-
-// for use in creating shortURL / user ID
-const generateRandomString = function () {
-  const alphanum =
-    "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789";
-  let arr = [];
-  for (let i = 0; i < 6; i++) {
-    arr.push(alphanum[Math.floor(Math.random() * alphanum.length)]);
-  }
-  return arr.join("");
-};
-
-// check if user already exists
-const getUserByEmail = function (inputtedEmail) {
-  for (const user in users) {
-    if (users[user].email === inputtedEmail) {
-      return users[user];
-    }
-  }
-  return null;
-};
-
-// check if user is logged in
-const isloggedIn = function (req) {
-  return req.session.user_id && users[req.session.user_id];
-};
-
-// retrieve input user's owned links
-const urlsForUser = function (id) {
-  const ownedUrlDatabase = {};
-  for (const entry in urlDatabase) {
-    if (urlDatabase[entry].userID === id) {
-      ownedUrlDatabase[entry] = urlDatabase[entry];
-    }
-  }
-  return ownedUrlDatabase;
-};
