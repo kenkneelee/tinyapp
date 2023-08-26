@@ -9,7 +9,7 @@ const bcrypt = require("bcryptjs");
 const {
   generateRandomString,
   getUserByEmail,
-  isloggedIn,
+  isLoggedIn,
   urlsForUser,
 } = require(`./helpers`);
 
@@ -42,7 +42,7 @@ const urlDatabase = {
 
 // base directory redirects
 app.get("/", (req, res) => {
-  if (isloggedIn(req, users)) {
+  if (isLoggedIn(req, users)) {
     return res.redirect(`/urls/`);
   }
   res.redirect(`/login/`);
@@ -50,7 +50,7 @@ app.get("/", (req, res) => {
 
 // list of all urls
 app.get("/urls", (req, res) => {
-  if (!isloggedIn(req, users)) {
+  if (!isLoggedIn(req, users)) {
     return res.send(
       "Welcome to TinyApp. Please <a href='/login/'>login</a> or <a href='/register/'>register.</a>"
     );
@@ -64,7 +64,7 @@ app.get("/urls", (req, res) => {
 
 // create new url page
 app.get("/urls/new", (req, res) => {
-  if (!isloggedIn(req, users)) {
+  if (!isLoggedIn(req, users)) {
     return res.redirect("/login/");
   }
   const templateVars = { user: users[req.session.user_id] };
@@ -73,7 +73,7 @@ app.get("/urls/new", (req, res) => {
 
 // specific url info page
 app.get("/urls/:id", (req, res) => {
-  if (!isloggedIn(req, users)) {
+  if (!isLoggedIn(req, users)) {
     return res
       .status(403)
       .send(
@@ -105,7 +105,7 @@ app.get("/u/:id", (req, res) => {
 
 // add new url entry
 app.post("/urls", (req, res) => {
-  if (!isloggedIn(req, users)) {
+  if (!isLoggedIn(req, users)) {
     return res.status(403).send("Cannot shorten URL: Not logged in");
   }
   let assignedID = generateRandomString();
@@ -146,7 +146,7 @@ app.post("/urls/:id/delete", (req, res) => {
 
 // login page
 app.get("/login", (req, res) => {
-  if (isloggedIn(req, users)) {
+  if (isLoggedIn(req, users)) {
     return res.redirect(`/urls/`);
   }
   const templateVars = { user: users[req.session.user_id] };
@@ -155,7 +155,7 @@ app.get("/login", (req, res) => {
 
 // new account page
 app.get("/register", (req, res) => {
-  if (isloggedIn(req, users)) {
+  if (isLoggedIn(req, users)) {
     res.redirect(`/urls/`);
   } else {
     const templateVars = { user: users[req.session.user_id] };
@@ -206,4 +206,3 @@ app.post("/logout", (req, res) => {
 app.listen(PORT, () => {
   console.log(`TinyApp listening on port ${PORT}!`);
 });
-

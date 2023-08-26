@@ -3,7 +3,7 @@ const { assert } = require("chai");
 const {
   generateRandomString,
   getUserByEmail,
-  isloggedIn,
+  isLoggedIn,
   urlsForUser,
 } = require("../helpers.js");
 
@@ -61,11 +61,11 @@ describe("getUserByEmail", function() {
 
 describe("isLoggedIn", function() {
   it("should return true for valid login session", function() {
-    const loginTest1 = isloggedIn(testRequest, testUsers);
+    const loginTest1 = isLoggedIn(testRequest, testUsers);
     assert.isTrue(loginTest1);
   });
   it("should return false for invalid login session", function() {
-    const loginTest2 = isloggedIn(testRequest2, testUsers);
+    const loginTest2 = isLoggedIn(testRequest2, testUsers);
     assert.isFalse(loginTest2);
   });
 });
