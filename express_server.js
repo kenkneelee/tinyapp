@@ -42,113 +42,114 @@ const urlDatabase = {
 // base directory redirects
 app.get("/", (req, res) => {
   if (isloggedIn(req, users)) {
-    res.redirect(`/urls/`);
-  } else {
-    res.redirect(`/login/`);
+    return res.redirect(`/urls/`);
   }
+  res.redirect(`/login/`);
 });
 
 // list of all urls
 app.get("/urls", (req, res) => {
   if (!isloggedIn(req, users)) {
-    res.send(
+    return res.send(
       "Welcome to TinyApp. Please <a href='/login/'>login</a> or <a href='/register/'>register.</a>"
     );
-  } else {
-    const templateVars = {
-      user: users[req.session.user_id],
-      urls: urlsForUser(req.session.user_id, urlDatabase),
-    };
-    res.render("urls_index", templateVars);
   }
+  const templateVars = {
+    user: users[req.session.user_id],
+    urls: urlsForUser(req.session.user_id, urlDatabase),
+  };
+  res.render("urls_index", templateVars);
 });
 
 // create new url page
 app.get("/urls/new", (req, res) => {
   if (!isloggedIn(req, users)) {
-    res.redirect("/login/");
-  } else {
-    const templateVars = { user: users[req.session.user_id] };
-    res.render("urls_new", templateVars);
+    return res.redirect("/login/");
   }
+  const templateVars = { user: users[req.session.user_id] };
+  res.render("urls_new", templateVars);
 });
 
 // specific url info page
 app.get("/urls/:id", (req, res) => {
   if (!isloggedIn(req, users)) {
-    res.send(
-      "Not logged in! Please <a href='/login/'>login</a> or <a href='/register/'>register.</a>"
-    );
-  } else if (!urlDatabase[req.params.id]) {
-    res.status(404).send("URL does not exist.");
-  } else if (urlDatabase[req.params.id].userID !== req.session.user_id) {
-    res.status(403).send("This URL does not belong to you.");
-  } else {
-    const templateVars = {
-      user: users[req.session.user_id],
-      id: req.params.id,
-      longURL: `${urlDatabase[req.params.id].longURL}`,
-    };
-    res.render("urls_show", templateVars);
+    return res
+      .status(403)
+      .send(
+        "Not logged in! Please <a href='/login/'>login</a> or <a href='/register/'>register.</a>"
+      );
   }
+  if (!urlDatabase[req.params.id]) {
+    return res.status(404).send("URL does not exist.");
+  }
+  if (urlDatabase[req.params.id].userID !== req.session.user_id) {
+    return res.status(403).send("This URL does not belong to you.");
+  }
+  const templateVars = {
+    user: users[req.session.user_id],
+    id: req.params.id,
+    longURL: `${urlDatabase[req.params.id].longURL}`,
+  };
+  res.render("urls_show", templateVars);
 });
 
 // redirect to associated longurl
 app.get("/u/:id", (req, res) => {
   if (!urlDatabase[req.params.id]) {
-    res.status(404).send("Link does not exist");
-  } else {
-    const foundLongURL = urlDatabase[req.params.id].longURL;
-    res.redirect(`${foundLongURL}`);
+    return res.status(404).send("Link does not exist");
   }
+  const foundLongURL = urlDatabase[req.params.id].longURL;
+  res.redirect(`${foundLongURL}`);
 });
 
 // add new url entry
 app.post("/urls", (req, res) => {
   if (!isloggedIn(req, users)) {
-    res.send("Cannot shorten URL: Not logged in");
-  } else {
-    let assignedID = generateRandomString();
-    urlDatabase[assignedID] = {
-      longURL: req.body.longURL,
-      userID: req.session.user_id,
-    };
-    res.redirect(`/urls/${assignedID}`);
+    return res.status(403).send("Cannot shorten URL: Not logged in");
   }
+  let assignedID = generateRandomString();
+  urlDatabase[assignedID] = {
+    longURL: req.body.longURL,
+    userID: req.session.user_id,
+  };
+  res.redirect(`/urls/${assignedID}`);
 });
 
 // update longURL of this entry
 app.post("/urls/:id/", (req, res) => {
   if (!urlDatabase[req.params.id]) {
-    res.status(404).send("Link not found.");
-  } else if (urlDatabase[req.params.id].userID !== req.session.user_id) {
-    res.status(403).send("You do not have permissions to edit this link.");
-  } else {
-    urlDatabase[req.params.id].longURL = req.body.updatedURL;
-    res.redirect(`/urls/`);
+    return res.status(404).send("Link not found.");
   }
+  if (urlDatabase[req.params.id].userID !== req.session.user_id) {
+    return res
+      .status(403)
+      .send("You do not have permissions to edit this link.");
+  }
+  urlDatabase[req.params.id].longURL = req.body.updatedURL;
+  res.redirect(`/urls/`);
 });
 
 // delete entry
 app.post("/urls/:id/delete", (req, res) => {
   if (!urlDatabase[req.params.id]) {
-    res.status(404).send("Link not found.");
-  } else if (urlDatabase[req.params.id].userID !== req.session.user_id) {
-    res.status(403).send("You do not have permissions to delete this link.");
-  } else {
-    delete urlDatabase[req.params.id];
-    res.redirect(`/urls/`);
+    return res.status(404).send("Link not found.");
   }
+  if (urlDatabase[req.params.id].userID !== req.session.user_id) {
+    return res
+      .status(403)
+      .send("You do not have permissions to delete this link.");
+  }
+  delete urlDatabase[req.params.id];
+  res.redirect(`/urls/`);
 });
 
 // login page
 app.get("/login", (req, res) => {
   if (isloggedIn(req, users)) {
-    res.redirect(`/urls/`);
-  } else {
-    const templateVars = { user: users[req.session.user_id] };
-    res.render("login", templateVars);
+    return res.redirect(`/urls/`);
   }
+  const templateVars = { user: users[req.session.user_id] };
+  res.render("login", templateVars);
 });
 
 // new account page
@@ -167,7 +168,7 @@ app.post("/login", (req, res) => {
   if (foundUser && bcrypt.compareSync(req.body.password, foundUser.password)) {
     req.session.user_id = foundUser.id;
     res.redirect(`/urls/`);
-  } else return res.sendStatus(403);
+  } else return res.status(403).send("Invalid credentials.");
 });
 
 // register new user form submission
@@ -201,7 +202,7 @@ app.post("/logout", (req, res) => {
 
 // allows users to connect
 app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}!`);
+  console.log(`TinyApp listening on port ${PORT}!`);
 });
 
 // Not in route checklist.
