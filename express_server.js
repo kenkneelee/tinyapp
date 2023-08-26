@@ -157,3 +157,7 @@ const getUserByEmail = function (inputtedEmail) {
   return null;
 };
 
+// check if user is logged in
+const isloggedIn = function (req) {
+  return req.cookies[user_id] ? true : false;
+}
