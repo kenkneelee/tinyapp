@@ -18,17 +18,6 @@ app.get("/", (req, res) => {
   res.send("Hello!");
 });
 
-// Not in route checklist. Remove before submission?
-// // learning to use "res.json"
-// app.get("/urls.json", (req, res) => {
-//   res.json(urlDatabase);
-// });
-
-// // learning to use "res.send"
-// app.get("/hello", (req, res) => {
-//   res.send("<html><body>Hello <b>World</b></body></html>\n");
-// });
-
 // list of all urls
 app.get("/urls", (req, res) => {
   const templateVars = {
@@ -133,6 +122,18 @@ app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
 
+// Not in route checklist.
+// // learning to use "res.json"
+// app.get("/urls.json", (req, res) => {
+//   res.json(urlDatabase);
+// });
+
+// Not in route checklist.
+// // learning to use "res.send"
+// app.get("/hello", (req, res) => {
+//   res.send("<html><body>Hello <b>World</b></body></html>\n");
+// });
+
 /////// Utility functions ///////
 
 // for use in creating shortURL / user ID
@@ -155,3 +156,4 @@ const getUserByEmail = function (inputtedEmail) {
   }
   return null;
 };
+
