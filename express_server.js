@@ -29,7 +29,7 @@ app.get("/", (req, res) => {
 app.get("/urls", (req, res) => {
   if (!isloggedIn(req)) {
     res.send(
-      "Please <a href='/login/'>login</a> or <a href='/register/'>register.</a>"
+      "Welcome to TinyApp. Please <a href='/login/'>login</a> or <a href='/register/'>register.</a>"
     );
   } else {
     const templateVars = {
@@ -52,12 +52,22 @@ app.get("/urls/new", (req, res) => {
 
 // specific url info page
 app.get("/urls/:id", (req, res) => {
-  const templateVars = {
-    user: users[req.cookies["user_id"]],
-    id: req.params.id,
-    longURL: `${urlDatabase[req.params.id].longURL}`,
-  };
-  res.render("urls_show", templateVars);
+  if (!isloggedIn(req)) {
+    res.send(
+      "Not logged in! Please <a href='/login/'>login</a> or <a href='/register/'>register.</a>"
+    );
+  } else if (!urlDatabase[req.params.id]) {
+    res.send("URL does not exist.");
+  } else if (urlDatabase[req.params.id].userID !== req.cookies["user_id"]) {
+    res.send("This URL does not belong to you.");
+  } else {
+    const templateVars = {
+      user: users[req.cookies["user_id"]],
+      id: req.params.id,
+      longURL: `${urlDatabase[req.params.id].longURL}`,
+    };
+    res.render("urls_show", templateVars);
+  }
 });
 
 // redirect to associated longurl
